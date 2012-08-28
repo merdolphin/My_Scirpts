@@ -1,0 +1,26 @@
+#!/bin/bash
+## written by lina on 2012/08/28
+## ~/scratch/gmxMD/b100a9/analysis/PDBsGROs/nearest_ones
+
+for j in {30..40}; 
+
+#for j in 30
+
+do
+
+./extract_model.pl new_$j.pdb
+
+echo -e "10 \n 11" > idx.txt ; for i in {1..501}; do g_mindist_g -f close_$i.pdb -s close_$i.pdb  -n index.ndx -od min_$i.xvg  < idx.txt; done
+
+for i in {1..501} ; do echo -n "$i "; tail -n 1 min_$i.xvg | awk '{print $2}'; done | awk '{if($2<0.2){print $1}}' | tr "\n" " " > output_$j;
+
+echo "#!/bin/bash
+" > temp.sh
+
+cat output_$j | sed 's/^/for i in /g; s/$/ ; do mv close_$i.pdb nearest_ones; done/g' >> temp.sh
+
+chmod +x temp.sh
+./temp.sh
+ 
+rm close* min*
+done
