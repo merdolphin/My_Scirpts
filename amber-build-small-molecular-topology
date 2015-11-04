@@ -1,0 +1,34 @@
+http://ambermd.org/tutorials/basic/tutorial4b/
+http://ambermd.org/tutorials/advanced/tutorial3/section1.htm
+
+
+vmd : pdb + pdb -> save pdb
+        set sel0 [atomselect 0 all]
+        set sel1 [atomselect 1 all]
+        $sel0 savepdb a_1.pdb
+        $sel1 savepdb lig_a.pdb
+gedit a_lig.pdb
+
+antechamber -i a_lig.pdb -o a_lig.mol2 -fo mol2 -c bcc -s 2
+
+parmchk -i a_lig.mol2 -f mol2 -o a_lig.frcmod
+
+$tleap -f leaprc.ff99SB
+ 
+source leaprc.gaff
+ 
+SUS = loadmol2 a_lig.mol2 
+ 
+check SUS  
+ 
+loadamberparams a_lig.frcmod     
+
+saveoff SUS a_lig.lib
+
+saveamberparm SUS a_lig.prmtop a_lig.inpcrd
+
+loadoff sus.lib
+complex = loadpdb complex.pdb
+
+
+ambpdb -p 1.prmtop < 1_min.crd > 1.pdb
